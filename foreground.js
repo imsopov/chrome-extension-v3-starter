@@ -1,68 +1,100 @@
 window.onload = function () {
-
     const callback = function (mutationList, observer) {
-
-        const newRaces = [];
-        var races = document.querySelector("ul[data-cy='races-sub-races-open-for-entry-container']");
-
         mutationList.forEach(function (mutation) {
             mutation.addedNodes.forEach(function (item) {
-                var derbyvalues = item.querySelectorAll(".space-x-1");
-                convertToUSD(derbyvalues);
-
+                if (item.nodeType === Node.ELEMENT_NODE) {
+                    const buttons = item.querySelectorAll("button[data-cy='horse-card-price-button']");
+                    if (buttons.length > 0) {
+                        convertPriceToUSD(buttons);
+                    }
+                }
             });
-            observer.disconnect();
-            var config = { childList: true };
-            observer.observe(races, config);
         });
-
     };
 
+function convertPriceToUSD(buttons) {
+    buttons.forEach((button) => {
+        const spanElement = button.querySelector("span");
+        const svgElement = spanElement.querySelector("svg");
 
-    function convertToUSD(listOfRaces) {
+        const text = spanElement.textContent;
+        const match = text.match(/\d+[\d,]*\.?\d*/);
 
-        listOfRaces.forEach(function (race) {
+        if (match) {
+            const number = parseFloat(match[0].replace(/,/g, ''));
+            const usd = (number / 80).toFixed(2);
+            
+            button.addEventListener('mouseenter', () => {
+                spanElement.textContent = `$${usd}`;
+                spanElement.insertBefore(svgElement, spanElement.firstChild);
+            });
 
-            const text = race.textContent;
-            const match = text.match(/\d+\.\d/);
-            if (match) {
-                let usd = 0;
-                if (match.input.includes('K')) {
-                    usd = ((match.toString() * 1000) / 80).toFixed(2)
-                }
-                else {
-                    usd = (match.toString() / 80).toFixed(2);
-                }
-                race.insertAdjacentHTML('afterend', '<p class="font-inter text-base text-white"> $' + usd + '</p>');
-            }
-        });
-    }
-
-    function addObserverIfDesiredNodeAvailable() {
-
-        var races = document.querySelector("ul[data-cy='races-sub-races-open-for-entry-container']")
-        if (!races) {
-            //The node we need does not exist yet.
-            //Wait 500ms and try again
-            window.setTimeout(addObserverIfDesiredNodeAvailable, 500);
-            return;
+            button.addEventListener('mouseleave', () => {
+                spanElement.textContent = text;
+                spanElement.insertBefore(svgElement, spanElement.firstChild);
+            });
         }
-
-        convertToUSD(document.querySelectorAll(".space-x-1"));
-        var config = { childList: true };
-        const observer = new MutationObserver(callback);
-        observer.observe(races, config);
-
-    }
-
-    addObserverIfDesiredNodeAvailable();
-
-
-
+    });
 }
 
 
 
+    function addObserverIfDesiredNodeAvailable() {
+        const urlPathname = window.location.pathname;
 
+        if (urlPathname.includes('/races')) {
+            handleRacesPage();
+        } else if (urlPathname.includes('/breeding')) {
+            handleBreedingPage();
+        } else if (urlPathname.includes('/marketplace')) {
+            handleMarketplacePage();
+        } else {
+            console.log('Not a supported page');
+            return;
+        }
 
+        const initialButtons = document.querySelectorAll("button[data-cy='horse-card-price-button']");
+        if (initialButtons.length === 0) {
+            window.setTimeout(addObserverIfDesiredNodeAvailable, 500);
+            return;
+        }
 
+        // Perform the conversion for the initial set of buttons
+        convertPriceToUSD(initialButtons);
+
+        // Observe the entire document for added nodes
+        var config = { childList: true, subtree: true };
+        const observer = new MutationObserver(callback);
+        observer.observe(document, config);
+    }
+
+    function handleRacesPage() {
+        console.log('Handling races page');
+        // Add your races page-specific code here
+    }
+
+    function handleBreedingPage() {
+        console.log('Handling breeding page');
+        // Add your breeding page-specific code here
+    }
+
+    function handleMarketplacePage() {
+        console.log('Handling marketplace page');
+        // Add your marketplace page-specific code here
+    }
+    let lastURL = window.location.href;
+
+    function checkURLChange() {
+        const currentURL = window.location.href;
+
+        if (lastURL !== currentURL) {
+            lastURL = currentURL;
+            addObserverIfDesiredNodeAvailable();
+        }
+
+        setTimeout(checkURLChange, 500);
+    }
+
+    checkURLChange();
+    addObserverIfDesiredNodeAvailable();
+};

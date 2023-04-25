@@ -2,7 +2,7 @@
     "manifest_version": 3,
     "name": "Photo Finish Live Tools",
     "description": "Tools for the game Photo Finish Live",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "icons": {
         "16": "logo/logo-16.png",
         "48": "logo/logo-48.png",
@@ -15,7 +15,7 @@
   },
   "permissions": [ "webNavigation" ],
   "host_permissions": [
-    "https://beta.photofinish.live/"
+    "https://photofinish.live/"
   ],
     "background": {
         "service_worker": "service-worker.js"
