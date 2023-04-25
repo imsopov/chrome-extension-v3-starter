@@ -13,15 +13,15 @@
     "default_title": "Photo Finish Live Tools",
     "default_popup": "popup/popup.html"
   },
-    "permissions": [],
-    "host_permissions": [
-        "*://*/*"
-    ],
+  "permissions": [ "webNavigation" ],
+  "host_permissions": [
+    "https://beta.photofinish.live/"
+  ],
     "background": {
         "service_worker": "service-worker.js"
     },
     "content_scripts": [{
       "js": [ "foreground.js", "thirdparty/jquery-2.2.4.min.js" ],
-        "matches": [ "https://beta.photofinish.live/*" ]
+        "matches": [ "https://photofinish.live/*" ]
     }]
 }
